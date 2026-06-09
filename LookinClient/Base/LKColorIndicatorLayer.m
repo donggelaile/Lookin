@@ -62,8 +62,21 @@
         return LookinColorMake(191, 191, 191);
     }
     
+    NSColor *rgbColor = [color colorUsingColorSpace:NSColorSpace.sRGBColorSpace];
+    if (!rgbColor) {
+        if (color.colorSpace.colorSpaceModel == NSColorSpaceModelGray) {
+            CGFloat white = 0;
+            CGFloat alpha = 0;
+            [color getWhite:&white alpha:&alpha];
+            CGFloat newWhite = (white > .5) ? (white - .2) : (white + .2);
+            CGFloat newAlpha = MIN(1, alpha + .3);
+            return [NSColor colorWithWhite:newWhite alpha:newAlpha];
+        }
+        return [color colorWithAlphaComponent:MIN(1, color.alphaComponent + .3)];
+    }
+    
     CGFloat hue, saturation, brightness, alpha;
-    [color getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha];
+    [rgbColor getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha];
     
     CGFloat newBrightness = (brightness > .5) ? (brightness - .2) : (brightness + .2);
     CGFloat newAlpha = MIN(1, alpha + .3);
